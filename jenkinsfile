@@ -1,5 +1,4 @@
 ## Step 5: GitHub Actions CI/CD
-
 ### .github/workflows/deploy.yml
 yaml
 name: Deploy to EKS
