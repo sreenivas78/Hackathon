@@ -8,8 +8,8 @@
 ---
 
 ## Step 1: Provision EKS using Terraform
+## terraform/main.tf
 
-### 📁 terraform/main.tf
 provider "aws" {
   region = "us-east-1"
 }
@@ -42,16 +42,13 @@ module "eks" {
   }
 }
 
-
-### 📁 terraform/outputs.tf
-hcl
+## terraform/outputs.tf
 output "cluster_name" {
   value = module.eks.cluster_name
 }
 
 
-### 📁 terraform/versions.tf
-hcl
+## terraform/versions.tf
 terraform {
   required_providers {
     aws = {
@@ -98,19 +95,15 @@ RUN npm install
 EXPOSE 3000
 CMD ["npm", "start"]
 
-
 ### 3. Build and Push to ECR
 bash
 aws ecr get-login-password | docker login --username AWS --password-stdin <ECR-URI>
 docker build -t <ECR-URI>:latest .
 docker push <ECR-URI>:latest
 
-
 ---
-
 ## Step 4: Kubernetes Deployment
-
-### 📁 k8s/deployment.yaml
+## k8s/deployment.yaml
 yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -132,8 +125,7 @@ spec:
         ports:
         - containerPort: 3000
 
-
-### 📁 k8s/service.yaml
+## k8s/service.yaml
 yaml
 apiVersion: v1
 kind: Service
@@ -158,7 +150,7 @@ kubectl apply -f k8s/service.yaml
 
 ## Step 5: GitHub Actions CI/CD
 
-### 📁 .github/workflows/deploy.yml
+### .github/workflows/deploy.yml
 yaml
 name: Deploy to EKS
 
@@ -201,7 +193,7 @@ jobs:
         kubectl apply -f k8s/deployment.yaml
         kubectl apply -f k8s/service.yaml
 
-
-### 🔐 Add GitHub Secrets
-- AWS_ACCESS_KEY_ID
+## Add GitHub Secrets
+- AWS_ACCESS_KEY_ID 
 - AWS_SECRET_ACCESS_KEY
+
