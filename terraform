@@ -34,7 +34,7 @@ module "eks" {
 }
 
 ## terraform/outputs.tf
-output "cluster_name" {
+output "sreenivaseks" {
   value = module.eks.cluster_name
 }
 
