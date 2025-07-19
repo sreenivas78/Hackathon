@@ -1,3 +1,26 @@
+## Step 4: Kubernetes Deployment
+## k8s/deployment.yaml
+yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: demo
+  template:
+    metadata:
+      labels:
+        app: demo
+    spec:
+      containers:
+      - name: demo
+        image: <ECR-URI>:latest
+        ports:
+        - containerPort: 3000
+
 ## k8s/service.yaml
 yaml
 apiVersion: v1
@@ -11,3 +34,9 @@ spec:
   ports:
     - port: 80
       targetPort: 3000
+
+
+### Apply Manifests
+bash
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
