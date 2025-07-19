@@ -80,22 +80,6 @@ aws ecr create-repository --repository-name demo-app --region us-east-1
 
 Save the URI (e.g. 123456789012.dkr.ecr.us-east-1.amazonaws.com/demo-app)
 
-### 2. Dockerfile for App
-dockerfile
-# Dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY . .
-RUN npm install
-EXPOSE 3000
-CMD ["npm", "start"]
-
-### 3. Build and Push to ECR
-bash
-aws ecr get-login-password | docker login --username AWS --password-stdin <ECR-URI>
-docker build -t <ECR-URI>:latest .
-docker push <ECR-URI>:latest
-
 ---
 ## Step 4: Kubernetes Deployment
 ## k8s/deployment.yaml
