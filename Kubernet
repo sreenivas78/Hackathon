@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: demo
-        image: <ECR-URI>:latest
+        image: <539935451710.dkr.ecr.us-west-1.amazonaws.com/sreenivasecr>:latest
         ports:
         - containerPort: 3000
 
