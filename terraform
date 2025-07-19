@@ -10,7 +10,6 @@
 ## Step 1: Provision EKS using Terraform
 
 ### 📁 terraform/main.tf
-hcl
 provider "aws" {
   region = "us-east-1"
 }
