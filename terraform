@@ -1,1 +1,208 @@
+## Prerequisites
+- AWS CLI configured
+- Terraform installed
+- Docker installed
+- kubectl installed
+- Git & GitHub account
 
+---
+
+## Step 1: Provision EKS using Terraform
+
+### 📁 terraform/main.tf
+hcl
+provider "aws" {
+  region = "us-east-1"
+}
+
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  name    = "eks-vpc"
+  cidr    = "10.0.0.0/16"
+  azs     = ["us-east-1a", "us-east-1b"]
+  private_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
+  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24"]
+  enable_nat_gateway = true
+  single_nat_gateway = true
+}
+
+module "eks" {
+  source          = "terraform-aws-modules/eks/aws"
+  cluster_name    = "demo-eks-cluster"
+  cluster_version = "1.24"
+  subnets         = module.vpc.private_subnets
+  vpc_id          = module.vpc.vpc_id
+
+  node_groups = {
+    eks_nodes = {
+      desired_capacity = 2
+      max_capacity     = 3
+      min_capacity     = 1
+      instance_type    = "t3.medium"
+    }
+  }
+}
+
+
+### 📁 terraform/outputs.tf
+hcl
+output "cluster_name" {
+  value = module.eks.cluster_name
+}
+
+
+### 📁 terraform/versions.tf
+hcl
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 4.0"
+    }
+  }
+  required_version = ">= 1.2.0"
+}
+
+
+### Run Terraform
+bash
+cd terraform
+terraform init
+terraform apply -auto-approve
+
+
+---
+
+## Step 2: Update kubeconfig for kubectl
+bash
+aws eks update-kubeconfig --region us-east-1 --name demo-eks-cluster
+kubectl get nodes
+
+
+---
+
+## Step 3: Create ECR and Push Docker Image
+
+### 1. Create ECR
+bash
+aws ecr create-repository --repository-name demo-app --region us-east-1
+
+Save the URI (e.g. 123456789012.dkr.ecr.us-east-1.amazonaws.com/demo-app)
+
+### 2. Dockerfile for App
+dockerfile
+# Dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY . .
+RUN npm install
+EXPOSE 3000
+CMD ["npm", "start"]
+
+
+### 3. Build and Push to ECR
+bash
+aws ecr get-login-password | docker login --username AWS --password-stdin <ECR-URI>
+docker build -t <ECR-URI>:latest .
+docker push <ECR-URI>:latest
+
+
+---
+
+## Step 4: Kubernetes Deployment
+
+### 📁 k8s/deployment.yaml
+yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: demo
+  template:
+    metadata:
+      labels:
+        app: demo
+    spec:
+      containers:
+      - name: demo
+        image: <ECR-URI>:latest
+        ports:
+        - containerPort: 3000
+
+
+### 📁 k8s/service.yaml
+yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: demo
+  ports:
+    - port: 80
+      targetPort: 3000
+
+
+### Apply Manifests
+bash
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+
+
+---
+
+## Step 5: GitHub Actions CI/CD
+
+### 📁 .github/workflows/deploy.yml
+yaml
+name: Deploy to EKS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Login to ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build and Push Docker Image
+      run: |
+        IMAGE_URI=<ECR-URI>
+        docker build -t $IMAGE_URI .
+        docker push $IMAGE_URI
+
+    - name: Set up kubectl
+      run: |
+        aws eks update-kubeconfig --region us-east-1 --name demo-eks-cluster
+
+    - name: Deploy to EKS
+      run: |
+        kubectl apply -f k8s/deployment.yaml
+        kubectl apply -f k8s/service.yaml
+
+
+### 🔐 Add GitHub Secrets
+- AWS_ACCESS_KEY_ID
+- AWS_SECRET_ACCESS_KEY
