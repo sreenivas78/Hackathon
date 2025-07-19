@@ -17,7 +17,7 @@ module "vpc" {
 }
 
 module "eks" {
-  source          = "terraform-aws-modules/eks/aws"
+  source          = "arn:aws:eks:us-west-1:539935451710:cluster/sreenivaseks"
   cluster_name    = "demo-eks-cluster"
   cluster_version = "1.24"
   subnets         = module.vpc.private_subnets
