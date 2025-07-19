@@ -11,5 +11,5 @@ CMD ["npm", "start"]
 ### 3. Build and Push to ECR
 bash
 aws ecr get-login-password | docker login --username AWS --password-stdin <539935451710.dkr.ecr.us-west-1.amazonaws.com/sreenivasecr>
-docker build -t <ECR-URI>:latest .
-docker push <ECR-URI>:latest
+docker build -t <539935451710.dkr.ecr.us-west-1.amazonaws.com/sreenivasecr>:latest .
+docker push <539935451710.dkr.ecr.us-west-1.amazonaws.com/sreenivasecr>:latest
