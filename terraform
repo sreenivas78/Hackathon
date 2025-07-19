@@ -58,28 +58,6 @@ cd terraform
 terraform init
 terraform apply -auto-approve
 
-
----
-
-## Step 2: Update kubeconfig for kubectl
-bash
-aws eks update-kubeconfig --region us-east-1 --name demo-eks-cluster
-kubectl get nodes
-
-
----
-
-## Step 3: Create ECR and Push Docker Image
-
-### 1. Create ECR
-bash
-aws ecr create-repository --repository-name demo-app --region us-east-1
-
-Save the URI (e.g. 123456789012.dkr.ecr.us-east-1.amazonaws.com/demo-app)
-
-
-
-
 ## Add GitHub Secrets
 - AWS_ACCESS_KEY_ID 
 - AWS_SECRET_ACCESS_KEY
