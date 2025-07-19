@@ -1,6 +1,5 @@
 ## Step 1: Provision EKS using Terraform
 ## terraform/main.tf
-
 provider "aws" {
   region = "us-east-1"
 }
@@ -37,7 +36,6 @@ module "eks" {
 output "sreenivaseks" {
   value = module.eks.cluster_name
 }
-
 
 ## terraform/versions.tf
 terraform {
