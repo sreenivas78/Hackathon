@@ -18,7 +18,7 @@ module "vpc" {
 
 module "eks" {
   source          = "arn:aws:eks:us-west-1:539935451710:cluster/sreenivaseks"
-  cluster_name    = "demo-eks-cluster"
+  cluster_name    = "sreenivaseks"
   cluster_version = "1.24"
   subnets         = module.vpc.private_subnets
   vpc_id          = module.vpc.vpc_id
