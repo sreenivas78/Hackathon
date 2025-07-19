@@ -42,14 +42,14 @@ kubectl get nodes
 
 ## Step 3: Create ECR and Push Docker Image
 
-### 1. Create ECR
+## 1. Create ECR
 bash
 aws ecr create-repository --repository-name demo-app --region us-east-1
 
 Save the URI (e.g. 123456789012.dkr.ecr.us-east-1.amazonaws.com/demo-app)
 
 
-### Apply Manifests
+## Apply Manifests
 bash
 kubectl apply -f k8s/deployment.yaml
 kubectl apply -f k8s/service.yaml
