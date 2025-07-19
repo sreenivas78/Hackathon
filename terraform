@@ -81,48 +81,6 @@ aws ecr create-repository --repository-name demo-app --region us-east-1
 Save the URI (e.g. 123456789012.dkr.ecr.us-east-1.amazonaws.com/demo-app)
 
 ---
-## Step 4: Kubernetes Deployment
-## k8s/deployment.yaml
-yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: demo-app
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: demo
-  template:
-    metadata:
-      labels:
-        app: demo
-    spec:
-      containers:
-      - name: demo
-        image: <ECR-URI>:latest
-        ports:
-        - containerPort: 3000
-
-## k8s/service.yaml
-yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: demo-service
-spec:
-  type: LoadBalancer
-  selector:
-    app: demo
-  ports:
-    - port: 80
-      targetPort: 3000
-
-
-### Apply Manifests
-bash
-kubectl apply -f k8s/deployment.yaml
-kubectl apply -f k8s/service.yaml
 
 
 ---
