@@ -16,7 +16,7 @@ provider "aws" {
 }
 
 module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
+  source  = "arn:aws:eks:us-west-1:539935451710:cluster/sreenivaseks"
   name    = "eks-vpc"
   cidr    = "10.0.0.0/16"
   azs     = ["us-east-1a", "us-east-1b"]
